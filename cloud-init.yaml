@@ -3,3 +3,4 @@ package_update: true
 runcmd:
   - curl -fsSL https://tailscale.com/install.sh | sh
   - tailscale up --ssh --authkey=${tailscale_authkey} 
+  - curl -sfL https://get.k3s.io | sh -
