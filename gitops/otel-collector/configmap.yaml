@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      hostmetrics:
+        collection_interval: 30s
+        scrapers:
+          cpu:
+          memory:
+          disk:
+    processors:
+      batch:
+    exporters:
+      awsemf:
+        region: "us-east-1"
+        namespace: "KubernetesByTheHour"
+        log_group_name: "/otel/kubernetes-by-the-hour/metrics"
+        log_stream_name: "otel-collector"
+        request_timeout_seconds: 60
+        max_retries: 5
+        endpoint: "https://logs.us-east-1.api.aws"
+    service:
+      pipelines:
+        metrics:
+          receivers: [hostmetrics]
+          processors: [batch]
+          exporters: [awsemf]
