@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: argo-freshness-check
+  namespace: default
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: argo-freshness-check
+          hostNetwork: true
+          dnsPolicy: ClusterFirstWithHostNet
+          restartPolicy: Never
+          volumes:
+            - name: shared
+              emptyDir: {}
+          initContainers:
+            - name: check-argo-status
+              image: bitnami/kubectl:1.31
+              command:
+                - sh
+                - -c
+                - |
+                  kubectl get application sample-app -n argocd -o jsonpath='{.status.sync.status}' > /shared/sample-app-status.txt
+                  kubectl get application otel-collector -n argocd -o jsonpath='{.status.sync.status}' > /shared/otel-collector-status.txt
+              volumeMounts:
+                - name: shared
+                  mountPath: /shared
+          containers:
+            - name: report-metric
+              image: amazon/aws-cli:2.17.62
+              command:
+                - sh
+                - -c
+                - |
+                  SAMPLE=$(cat /shared/sample-app-status.txt)
+                  OTEL=$(cat /shared/otel-collector-status.txt)
+                  if [ "$SAMPLE" = "Synced" ] && [ "$OTEL" = "Synced" ]; then
+                    aws cloudwatch put-metric-data \
+                      --region us-east-1 \
+                      --namespace KubernetesByTheHour \
+                      --metric-name ArgoSyncCheckCompleted \
+                      --value 1
+                    echo "OK: sample-app=$SAMPLE otel-collector=$OTEL — metrica publicada"
+                  else
+                    echo "NOT SYNCED: sample-app=$SAMPLE otel-collector=$OTEL — no se publica metrica"
+                    exit 1
+                  fi
+              volumeMounts:
+                - name: shared
+                  mountPath: /shared

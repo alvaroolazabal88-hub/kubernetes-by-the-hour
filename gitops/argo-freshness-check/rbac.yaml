@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argo-freshness-check
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: read-applications
+  namespace: argocd
+rules:
+  - apiGroups: ["argoproj.io"]
+    resources: ["applications"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argo-freshness-check-binding
+  namespace: argocd
+subjects:
+  - kind: ServiceAccount
+    name: argo-freshness-check
+    namespace: default
+roleRef:
+  kind: Role
+  name: read-applications
+  apiGroup: rbac.authorization.k8s.io
