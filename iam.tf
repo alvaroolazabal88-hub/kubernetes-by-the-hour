@@ -39,3 +39,23 @@ resource "aws_iam_role_policy" "node_cloudwatch_logs" {
     ]
   })
 }
+resource "aws_iam_role_policy" "node_cloudwatch_metrics" {
+  name = "cloudwatch-metrics-argo-freshness"
+  role = aws_iam_role.node.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "cloudwatch:PutMetricData"
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "cloudwatch:namespace" = "KubernetesByTheHour"
+          }
+        }
+      }
+    ]
+  })
+}
