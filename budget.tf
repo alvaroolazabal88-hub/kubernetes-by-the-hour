@@ -1,7 +1,7 @@
 resource "aws_budgets_budget" "monthly" {
   name         = "kubernetes-by-the-hour-permanent-budget-alert"
   budget_type  = "COST"
-  limit_amount = "25"
+  limit_amount = "70"
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
 

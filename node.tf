@@ -9,25 +9,18 @@ resource "aws_security_group" "node" {
     protocol         = "-1"
     ipv6_cidr_blocks = ["::/0"]
   }
-}
 
-data "aws_ami" "al2023" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["al2023-ami-*-x86_64"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
+  ingress {
+    from_port        = -1
+    to_port          = -1
+    protocol         = "icmpv6"
+    ipv6_cidr_blocks = ["::/0"]
   }
 }
+
 
 resource "aws_instance" "node" {
-  ami                    = data.aws_ami.al2023.id
+  ami                    = var.node_ami_id
   instance_type          = "t3.small"
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.node.id]

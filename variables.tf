@@ -7,3 +7,9 @@ variable "tailscale_authkey" {
   type      = string
   sensitive = true
 }
+
+variable "node_ami_id" {
+  description = "I am using an specific version to prevent recreation of the instance when terraform apply"
+  type        = string
+  default     = "ami-09179a962fadf762b"
+}
