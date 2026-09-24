@@ -20,7 +20,7 @@ spec:
               emptyDir: {}
           initContainers:
             - name: check-argo-status
-              image: rancher/kubectl:v1.36.2
+              image: bitnami/kubectl@sha256:ab90e1058e5a658cc94b4e7eb6d48e5758cfd6d77b5dd1869513aec3a3054673
               command:
                 - sh
                 - -c
