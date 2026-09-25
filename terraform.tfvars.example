@@ -1,0 +1,2 @@
+alert_email        = "you@example.com"
+tailscale_authkey  = "tskey-auth-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
